@@ -13,5 +13,14 @@ func main() {
 type Handler struct{}
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Hello")
+	switch r.Method {
+	case http.MethodPost:
+		fmt.Fprintln(w, "Hello")
+	default:
+		h.unsupportedMethod(w, r)
+	}
+}
+
+func (h *Handler) unsupportedMethod(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusMethodNotAllowed)
 }
