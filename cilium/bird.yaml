@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  namespace: kube-system
+  name: bird
+  labels:
+    k8s-app: bird
+spec:
+  selector:
+    matchLabels:
+      k8s-app: bird
+  template:
+    metadata:
+      labels:
+        k8s-app: bird
+    spec:
+      tolerations:
+      - effect: NoSchedule
+        operator: Exists
+      hostNetwork: true
+      containers:
+      - name: bird
+        image: bird1
+        imagePullPolicy: IfNotPresent
+        command: ["bird", "-d"]
+        securityContext:
+          privileged: true
