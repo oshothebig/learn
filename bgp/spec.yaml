@@ -1,0 +1,298 @@
+nodes:
+- name: spine00
+  image: frr-bgp
+  interfaces:
+  - name: eth0
+    type: direct
+    args: leaf00#eth0
+  - name: eth1
+    type: direct
+    args: leaf01#eth0
+  - name: eth2
+    type: direct
+    args: leaf02#eth0
+  - name: eth3
+    type: direct
+    args: leaf03#eth0
+  sysctls:
+  - sysctl: net.ipv6.conf.all.disable_ipv6=0
+  - sysctl: net.ipv6.conf.default.disable_ipv6=0
+  - sysctl: net.ipv4.conf.all.rp_filter=0
+  - sysctl: net.ipv4.conf.default.rp_filter=0
+  - sysctl: net.ipv4.ip_forward=1
+- name: spine01
+  image: frr-bgp
+  interfaces:
+  - name: eth0
+    type: direct
+    args: leaf00#eth1
+  - name: eth1
+    type: direct
+    args: leaf01#eth1
+  - name: eth2
+    type: direct
+    args: leaf02#eth1
+  - name: eth3
+    type: direct
+    args: leaf03#eth1
+  sysctls:
+  - sysctl: net.ipv6.conf.all.disable_ipv6=0
+  - sysctl: net.ipv6.conf.default.disable_ipv6=0
+  - sysctl: net.ipv4.conf.all.rp_filter=0
+  - sysctl: net.ipv4.conf.default.rp_filter=0
+  - sysctl: net.ipv4.ip_forward=1
+- name: leaf00
+  image: frr-bgp
+  interfaces:
+  - name: eth0
+    type: direct
+    args: spine00#eth0
+  - name: eth1
+    type: direct
+    args: spine01#eth0
+  - name: eth2
+    type: direct
+    args: host00#eth0
+  - name: eth3
+    type: direct
+    args: host01#eth0
+  sysctls:
+  - sysctl: net.ipv6.conf.all.disable_ipv6=0
+  - sysctl: net.ipv6.conf.default.disable_ipv6=0
+  - sysctl: net.ipv4.conf.all.rp_filter=0
+  - sysctl: net.ipv4.conf.default.rp_filter=0
+  - sysctl: net.ipv4.ip_forward=1
+- name: leaf01
+  image: frr-bgp
+  interfaces:
+  - name: eth0
+    type: direct
+    args: spine00#eth1
+  - name: eth1
+    type: direct
+    args: spine01#eth1
+  - name: eth2
+    type: direct
+    args: host02#eth0
+  - name: eth3
+    type: direct
+    args: host03#eth0
+  sysctls:
+  - sysctl: net.ipv6.conf.all.disable_ipv6=0
+  - sysctl: net.ipv6.conf.default.disable_ipv6=0
+  - sysctl: net.ipv4.conf.all.rp_filter=0
+  - sysctl: net.ipv4.conf.default.rp_filter=0
+  - sysctl: net.ipv4.ip_forward=1
+- name: leaf02
+  image: frr-bgp
+  interfaces:
+  - name: eth0
+    type: direct
+    args: spine00#eth2
+  - name: eth1
+    type: direct
+    args: spine01#eth2
+  - name: eth2
+    type: direct
+    args: host04#eth0
+  - name: eth3
+    type: direct
+    args: host05#eth0
+  sysctls:
+  - sysctl: net.ipv6.conf.all.disable_ipv6=0
+  - sysctl: net.ipv6.conf.default.disable_ipv6=0
+  - sysctl: net.ipv4.conf.all.rp_filter=0
+  - sysctl: net.ipv4.conf.default.rp_filter=0
+  - sysctl: net.ipv4.ip_forward=1
+- name: leaf03
+  image: frr-bgp
+  interfaces:
+  - name: eth0
+    type: direct
+    args: spine00#eth3
+  - name: eth1
+    type: direct
+    args: spine01#eth3
+  - name: eth2
+    type: direct
+    args: host06#eth0
+  - name: eth3
+    type: direct
+    args: host07#eth0
+  sysctls:
+  - sysctl: net.ipv6.conf.all.disable_ipv6=0
+  - sysctl: net.ipv6.conf.default.disable_ipv6=0
+  - sysctl: net.ipv4.conf.all.rp_filter=0
+  - sysctl: net.ipv4.conf.default.rp_filter=0
+  - sysctl: net.ipv4.ip_forward=1
+- name: host00
+  image: ghcr.io/nicolaka/netshoot
+  interfaces:
+  - name: eth0
+    type: direct
+    args: leaf00#eth2
+  sysctls:
+  - sysctl: net.ipv6.conf.all.disable_ipv6=0
+  - sysctl: net.ipv6.conf.default.disable_ipv6=0
+  - sysctl: net.ipv4.conf.all.rp_filter=0
+  - sysctl: net.ipv4.conf.default.rp_filter=0
+- name: host01
+  image: ghcr.io/nicolaka/netshoot
+  interfaces:
+  - name: eth0
+    type: direct
+    args: leaf00#eth3
+  sysctls:
+  - sysctl: net.ipv6.conf.all.disable_ipv6=0
+  - sysctl: net.ipv6.conf.default.disable_ipv6=0
+  - sysctl: net.ipv4.conf.all.rp_filter=0
+  - sysctl: net.ipv4.conf.default.rp_filter=0
+- name: host02
+  image: ghcr.io/nicolaka/netshoot
+  interfaces:
+  - name: eth0
+    type: direct
+    args: leaf01#eth2
+  sysctls:
+  - sysctl: net.ipv6.conf.all.disable_ipv6=0
+  - sysctl: net.ipv6.conf.default.disable_ipv6=0
+  - sysctl: net.ipv4.conf.all.rp_filter=0
+  - sysctl: net.ipv4.conf.default.rp_filter=0
+- name: host03
+  image: ghcr.io/nicolaka/netshoot
+  interfaces:
+  - name: eth0
+    type: direct
+    args: leaf01#eth3
+  sysctls:
+  - sysctl: net.ipv6.conf.all.disable_ipv6=0
+  - sysctl: net.ipv6.conf.default.disable_ipv6=0
+  - sysctl: net.ipv4.conf.all.rp_filter=0
+  - sysctl: net.ipv4.conf.default.rp_filter=0
+- name: host04
+  image: ghcr.io/nicolaka/netshoot
+  interfaces:
+  - name: eth0
+    type: direct
+    args: leaf02#eth2
+  sysctls:
+  - sysctl: net.ipv6.conf.all.disable_ipv6=0
+  - sysctl: net.ipv6.conf.default.disable_ipv6=0
+  - sysctl: net.ipv4.conf.all.rp_filter=0
+  - sysctl: net.ipv4.conf.default.rp_filter=0
+- name: host05
+  image: ghcr.io/nicolaka/netshoot
+  interfaces:
+  - name: eth0
+    type: direct
+    args: leaf02#eth3
+  sysctls:
+  - sysctl: net.ipv6.conf.all.disable_ipv6=0
+  - sysctl: net.ipv6.conf.default.disable_ipv6=0
+  - sysctl: net.ipv4.conf.all.rp_filter=0
+  - sysctl: net.ipv4.conf.default.rp_filter=0
+- name: host06
+  image: ghcr.io/nicolaka/netshoot
+  interfaces:
+  - name: eth0
+    type: direct
+    args: leaf03#eth2
+  sysctls:
+  - sysctl: net.ipv6.conf.all.disable_ipv6=0
+  - sysctl: net.ipv6.conf.default.disable_ipv6=0
+  - sysctl: net.ipv4.conf.all.rp_filter=0
+  - sysctl: net.ipv4.conf.default.rp_filter=0
+- name: host07
+  image: ghcr.io/nicolaka/netshoot
+  interfaces:
+  - name: eth0
+    type: direct
+    args: leaf03#eth3
+  sysctls:
+  - sysctl: net.ipv6.conf.all.disable_ipv6=0
+  - sysctl: net.ipv6.conf.default.disable_ipv6=0
+  - sysctl: net.ipv4.conf.all.rp_filter=0
+  - sysctl: net.ipv4.conf.default.rp_filter=0
+node_configs:
+- name: spine00
+  cmds:
+  - cmd: ip addr add 10.0.0.0/31 dev eth0
+  - cmd: ip addr add 10.0.0.2/31 dev eth1
+  - cmd: ip addr add 10.0.0.4/31 dev eth2
+  - cmd: ip addr add 10.0.0.6/31 dev eth3
+  - cmd: ip addr add 172.16.0.1/32 dev lo
+- name: spine01
+  cmds:
+  - cmd: ip addr add 10.0.0.8/31 dev eth0
+  - cmd: ip addr add 10.0.0.10/31 dev eth1
+  - cmd: ip addr add 10.0.0.12/31 dev eth2
+  - cmd: ip addr add 10.0.0.14/31 dev eth3
+  - cmd: ip addr add 172.16.0.2/32 dev lo
+- name: leaf00
+  cmds:
+  - cmd: ip addr add 10.0.0.1/31 dev eth0
+  - cmd: ip addr add 10.0.0.9/31 dev eth1
+  - cmd: ip addr add 192.168.0.1/24 dev eth2
+  - cmd: ip addr add 192.168.1.1/24 dev eth3
+  - cmd: ip addr add 172.16.0.3/32 dev lo
+- name: leaf01
+  cmds:
+  - cmd: ip addr add 10.0.0.3/31 dev eth0
+  - cmd: ip addr add 10.0.0.11/31 dev eth1
+  - cmd: ip addr add 192.168.2.1/24 dev eth2
+  - cmd: ip addr add 192.168.3.1/24 dev eth3
+  - cmd: ip addr add 172.16.0.4/32 dev lo
+- name: leaf02
+  cmds:
+  - cmd: ip addr add 10.0.0.5/31 dev eth0
+  - cmd: ip addr add 10.0.0.13/31 dev eth1
+  - cmd: ip addr add 192.168.4.1/24 dev eth2
+  - cmd: ip addr add 192.168.5.1/24 dev eth3
+  - cmd: ip addr add 172.16.0.5/32 dev lo
+- name: leaf03
+  cmds:
+  - cmd: ip addr add 10.0.0.7/31 dev eth0
+  - cmd: ip addr add 10.0.0.15/31 dev eth1
+  - cmd: ip addr add 192.168.6.1/24 dev eth2
+  - cmd: ip addr add 192.168.7.1/24 dev eth3
+  - cmd: ip addr add 172.16.0.6/32 dev lo
+- name: host00
+  cmds:
+  - cmd: ip addr add 192.168.0.2/24 dev eth0
+  - cmd: ip addr add 172.16.0.7/32 dev lo
+  - cmd: ip route add default via 192.168.0.1
+- name: host01
+  cmds:
+  - cmd: ip addr add 192.168.1.2/24 dev eth0
+  - cmd: ip addr add 172.16.0.8/32 dev lo
+  - cmd: ip route add default via 192.168.1.1
+- name: host02
+  cmds:
+  - cmd: ip addr add 192.168.2.2/24 dev eth0
+  - cmd: ip addr add 172.16.0.9/32 dev lo
+  - cmd: ip route add default via 192.168.2.1
+- name: host03
+  cmds:
+  - cmd: ip addr add 192.168.3.2/24 dev eth0
+  - cmd: ip addr add 172.16.0.10/32 dev lo
+  - cmd: ip route add default via 192.168.3.1
+- name: host04
+  cmds:
+  - cmd: ip addr add 192.168.4.2/24 dev eth0
+  - cmd: ip addr add 172.16.0.11/32 dev lo
+  - cmd: ip route add default via 192.168.4.1
+- name: host05
+  cmds:
+  - cmd: ip addr add 192.168.5.2/24 dev eth0
+  - cmd: ip addr add 172.16.0.12/32 dev lo
+  - cmd: ip route add default via 192.168.5.1
+- name: host06
+  cmds:
+  - cmd: ip addr add 192.168.6.2/24 dev eth0
+  - cmd: ip addr add 172.16.0.13/32 dev lo
+  - cmd: ip route add default via 192.168.6.1
+- name: host07
+  cmds:
+  - cmd: ip addr add 192.168.7.2/24 dev eth0
+  - cmd: ip addr add 172.16.0.14/32 dev lo
+  - cmd: ip route add default via 192.168.7.1
