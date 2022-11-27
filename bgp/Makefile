@@ -24,5 +24,5 @@ load-config: $(FRR_CONFIG_FILES)
 
 .PHONY: $(FRR_CONFIG_FILES)
 $(FRR_CONFIG_FILES):
-	docker cp $@ $(basename $(notdir $@))
+	docker cp $@ $(basename $(notdir $@)):/etc/frr/frr.conf
 	docker exec $(basename $(notdir $@)) /usr/lib/frr/frr-reload.py --reload /etc/frr/frr.conf
