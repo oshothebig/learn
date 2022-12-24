@@ -1,0 +1,222 @@
+name: kind
+
+topology:
+  nodes:
+    spine00:
+      kind: linux
+      image: frrouting/frr:v8.4.0
+      entrypoint: bash
+      exec:
+      - ip link del eth0
+      - ip addr add 10.0.0.1/32 dev lo
+      - sed -i -e 's/bgpd=no/bgpd=yes/g' /etc/frr/daemons
+      - bash -c "echo service integrated-vtysh-config > /etc/frr/vtysh.conf"
+      - /usr/lib/frr/frrinit.sh start
+      - >-
+        vtysh -c "conf t"
+        -c "router bgp 65001"
+        -c "bgp router-id 10.0.0.1"
+        -c "bgp bestpath as-path multipath-relax"
+        -c "no bgp ebgp-requires-policy"
+        -c "neighbor eth1 interface remote-as external"
+        -c "neighbor eth2 interface remote-as external"
+        -c "address-family ipv4 unicast"
+        -c "redistribute connected"
+
+    spine01:
+      kind: linux
+      image: frrouting/frr:v8.4.0
+      entrypoint: bash
+      exec:
+      - ip link del eth0
+      - ip addr add 10.0.0.2/32 dev lo
+      - sed -i -e 's/bgpd=no/bgpd=yes/g' /etc/frr/daemons
+      - bash -c "echo service integrated-vtysh-config > /etc/frr/vtysh.conf"
+      - /usr/lib/frr/frrinit.sh start
+      - >-
+        vtysh -c "conf t"
+        -c "router bgp 65002"
+        -c "bgp router-id 10.0.0.2"
+        -c "bgp bestpath as-path multipath-relax"
+        -c "no bgp ebgp-requires-policy"
+        -c "neighbor eth1 interface remote-as external"
+        -c "neighbor eth2 interface remote-as external"
+        -c "address-family ipv4 unicast"
+        -c "redistribute connected"
+
+    leaf00:
+      kind: linux
+      image: frrouting/frr:v8.4.0
+      entrypoint: bash
+      exec:
+      - ip link del eth0
+      - ip addr add 10.0.0.3/32 dev lo
+      - sed -i -e 's/bgpd=no/bgpd=yes/g' /etc/frr/daemons
+      - bash -c "echo service integrated-vtysh-config > /etc/frr/vtysh.conf"
+      - /usr/lib/frr/frrinit.sh start
+      - >-
+        vtysh -c "conf t"
+        -c "router bgp 65003"
+        -c "bgp router-id 10.0.0.3"
+        -c "bgp bestpath as-path multipath-relax"
+        -c "no bgp ebgp-requires-policy"
+        -c "neighbor eth1 interface remote-as external"
+        -c "neighbor eth2 interface remote-as external"
+        -c "neighbor eth3 interface remote-as external"
+        -c "neighbor eth4 interface remote-as external"
+        -c "address-family ipv4 unicast"
+        -c "redistribute connected"
+
+    leaf01:
+      kind: linux
+      image: frrouting/frr:v8.4.0
+      entrypoint: bash
+      exec:
+      - ip link del eth0
+      - ip addr add 10.0.0.4/32 dev lo
+      - sed -i -e 's/bgpd=no/bgpd=yes/g' /etc/frr/daemons
+      - bash -c "echo service integrated-vtysh-config > /etc/frr/vtysh.conf"
+      - /usr/lib/frr/frrinit.sh start
+      - >-
+        vtysh -c "conf t"
+        -c "router bgp 65004"
+        -c "bgp router-id 10.0.0.4"
+        -c "bgp bestpath as-path multipath-relax"
+        -c "no bgp ebgp-requires-policy"
+        -c "neighbor eth1 interface remote-as external"
+        -c "neighbor eth2 interface remote-as external"
+        -c "neighbor eth3 interface remote-as external"
+        -c "neighbor eth4 interface remote-as external"
+        -c "address-family ipv4 unicast"
+        -c "redistribute connected"
+
+    host00:
+      kind: linux
+      image: ghcr.io/nicolaka/netshoot
+      network-mode: container:kind-control-plane
+      exec:
+      - ip addr add 10.0.0.5/32 dev lo
+      - ip link set lo mtu 9000
+
+    host01:
+      kind: linux
+      image: ghcr.io/nicolaka/netshoot
+      network-mode: container:kind-worker
+      exec:
+      - ip addr add 10.0.0.6/32 dev lo
+      - ip link set lo mtu 9000
+
+    host02:
+      kind: linux
+      image: ghcr.io/nicolaka/netshoot
+      network-mode: container:kind-worker2
+      exec:
+      - ip addr add 10.0.0.7/32 dev lo
+      - ip link set lo mtu 9000
+
+    host03:
+      kind: linux
+      image: ghcr.io/nicolaka/netshoot
+      network-mode: container:kind-worker3
+      exec:
+      - ip addr add 10.0.0.8/32 dev lo
+      - ip link set lo mtu 9000
+
+    bgp00:
+      kind: linux
+      image: frrouting/frr:v8.4.0
+      network-mode: container:kind-control-plane
+      entrypoint: bash
+      exec:
+      - sed -i -e 's/bgpd=no/bgpd=yes/g' /etc/frr/daemons
+      - bash -c "echo service integrated-vtysh-config > /etc/frr/vtysh.conf"
+      - /usr/lib/frr/frrinit.sh start
+      - >-
+        vtysh -c "conf t"
+        -c "router bgp 65005"
+        -c "bgp router-id 10.0.0.5"
+        -c "bgp bestpath as-path multipath-relax"
+        -c "no bgp ebgp-requires-policy"
+        -c "neighbor eth1 interface remote-as external"
+        -c "address-family ipv4 unicast"
+        -c "redistribute connected"
+        -c "redistribute kernel"
+
+    bgp01:
+      kind: linux
+      image: frrouting/frr:v8.4.0
+      network-mode: container:kind-worker
+      entrypoint: bash
+      exec:
+      - sed -i -e 's/bgpd=no/bgpd=yes/g' /etc/frr/daemons
+      - bash -c "echo service integrated-vtysh-config > /etc/frr/vtysh.conf"
+      - /usr/lib/frr/frrinit.sh start
+      - >-
+        vtysh -c "conf t"
+        -c "router bgp 65006"
+        -c "bgp router-id 10.0.0.6"
+        -c "bgp bestpath as-path multipath-relax"
+        -c "no bgp ebgp-requires-policy"
+        -c "neighbor eth1 interface remote-as external"
+        -c "address-family ipv4 unicast"
+        -c "redistribute connected"
+        -c "redistribute kernel"
+
+    bgp02:
+      kind: linux
+      image: frrouting/frr:v8.4.0
+      network-mode: container:kind-worker2
+      entrypoint: bash
+      exec:
+      - sed -i -e 's/bgpd=no/bgpd=yes/g' /etc/frr/daemons
+      - bash -c "echo service integrated-vtysh-config > /etc/frr/vtysh.conf"
+      - /usr/lib/frr/frrinit.sh start
+      - >-
+        vtysh -c "conf t"
+        -c "router bgp 65007"
+        -c "bgp router-id 10.0.0.7"
+        -c "bgp bestpath as-path multipath-relax"
+        -c "no bgp ebgp-requires-policy"
+        -c "neighbor eth1 interface remote-as external"
+        -c "address-family ipv4 unicast"
+        -c "redistribute connected"
+        -c "redistribute kernel"
+
+    bgp03:
+      kind: linux
+      image: frrouting/frr:v8.4.0
+      network-mode: container:kind-worker3
+      entrypoint: bash
+      exec:
+      - sed -i -e 's/bgpd=no/bgpd=yes/g' /etc/frr/daemons
+      - bash -c "echo service integrated-vtysh-config > /etc/frr/vtysh.conf"
+      - /usr/lib/frr/frrinit.sh start
+      - >-
+        vtysh -c "conf t"
+        -c "router bgp 65008"
+        -c "bgp router-id 10.0.0.8"
+        -c "bgp bestpath as-path multipath-relax"
+        -c "no bgp ebgp-requires-policy"
+        -c "neighbor eth1 interface remote-as external"
+        -c "address-family ipv4 unicast"
+        -c "redistribute connected"
+        -c "redistribute kernel"
+
+    kind-control-plane:
+      kind: ext-container
+    kind-worker:
+      kind: ext-container
+    kind-worker2:
+      kind: ext-container
+    kind-worker3:
+      kind: ext-container
+
+  links:
+  - endpoints: ["spine00:eth1", "leaf00:eth1"]
+  - endpoints: ["spine00:eth2", "leaf01:eth1"]
+  - endpoints: ["spine01:eth1", "leaf00:eth2"]
+  - endpoints: ["spine01:eth2", "leaf01:eth2"]
+  - endpoints: ["leaf00:eth3", "kind-control-plane:eth1"]
+  - endpoints: ["leaf00:eth4", "kind-worker:eth1"]
+  - endpoints: ["leaf01:eth3", "kind-worker2:eth1"]
+  - endpoints: ["leaf01:eth4", "kind-worker3:eth1"]
