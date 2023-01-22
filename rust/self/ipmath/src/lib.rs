@@ -46,3 +46,10 @@ pub fn add(lhs: IpAddr, rhs: u128) -> IpAddr {
         IpAddr::V6(addr) => IpAddr::from(add_ipv6(addr, rhs)),
     }
 }
+
+#[test]
+fn test_add_one() {
+    let lhs = IpAddr::from([192, 168, 0, 1]);
+    let actual = add(lhs, 10);
+    assert_eq!(actual, IpAddr::from([192, 168, 0, 11]));
+}
