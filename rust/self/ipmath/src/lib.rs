@@ -1,5 +1,4 @@
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
-use std::str::FromStr;
 
 pub fn add_ipv4(lhs: Ipv4Addr, rhs: u32) -> Ipv4Addr {
     let octets = lhs.octets();
