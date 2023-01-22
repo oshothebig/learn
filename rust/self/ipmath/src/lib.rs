@@ -1,5 +1,45 @@
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 
+#[derive(PartialEq, Debug)]
+struct Ipv4 {
+    ip: u32,
+}
+
+impl Ipv4 {
+    fn new(a: u8, b: u8, c: u8, d: u8) -> Ipv4 {
+        Ipv4 {
+            ip: u32::from_be_bytes([a, b, c, d]),
+        }
+    }
+}
+
+impl From<[u8; 4]> for Ipv4 {
+    fn from(octets: [u8; 4]) -> Self {
+        Ipv4 {
+            ip: u32::from_be_bytes(octets),
+        }
+    }
+}
+
+impl From<Ipv4Addr> for Ipv4 {
+    fn from(ipv4: Ipv4Addr) -> Self {
+        Ipv4::from(ipv4.octets())
+    }
+}
+
+#[test]
+fn test_new_ipv4() {
+    let sut = Ipv4::new(192, 168, 0, 1);
+    // 0xc0 => 192, 0xa8 => 168, 0x00 => 0, 0x01 => 1
+    assert_eq!(sut.ip, 0xc0_a8_00_01);
+}
+
+#[test]
+fn test_from_byte_array() {
+    let sut = Ipv4::from([192, 168, 0, 1]);
+    assert_eq!(sut, Ipv4::new(192, 168, 0, 1));
+}
+
 pub fn add_ipv4(lhs: Ipv4Addr, rhs: u32) -> Ipv4Addr {
     let octets = lhs.octets();
     let num_repr = u32::from_be_bytes(octets).wrapping_add(rhs);
