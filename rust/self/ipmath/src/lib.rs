@@ -1,6 +1,7 @@
+use std::iter::{IntoIterator, Iterator};
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Copy, Clone)]
 struct Ipv4 {
     ip: u32,
 }
@@ -25,6 +26,53 @@ impl From<Ipv4Addr> for Ipv4 {
     fn from(ipv4: Ipv4Addr) -> Self {
         Ipv4::from(ipv4.octets())
     }
+}
+
+impl IntoIterator for Ipv4 {
+    type Item = Ipv4;
+    type IntoIter = Ipv4Iterator;
+
+    fn into_iter(self) -> Self::IntoIter {
+        Ipv4Iterator { next: Some(self) }
+    }
+}
+
+struct Ipv4Iterator {
+    next: Option<Ipv4>,
+}
+
+impl Iterator for Ipv4Iterator {
+    type Item = Ipv4;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let next = self.next;
+        match next {
+            Some(x) => {
+                if x.ip == 0xff_ff_ff_ff {
+                    self.next = None;
+                } else {
+                    self.next = Some(Ipv4 { ip: x.ip + 1 })
+                }
+                next
+            }
+            None => None,
+        }
+    }
+}
+
+#[test]
+fn test_ipv4_iter() {
+    let mut iter = Ipv4::new(192, 168, 0, 1).into_iter();
+    assert_eq!(iter.next(), Some(Ipv4::new(192, 168, 0, 1)));
+    assert_eq!(iter.next(), Some(Ipv4::new(192, 168, 0, 2)));
+}
+
+#[test]
+fn test_ipv4_iter_final() {
+    let mut iter = Ipv4::new(255, 255, 255, 254).into_iter();
+    assert_eq!(iter.next(), Some(Ipv4::new(255, 255, 255, 254)));
+    assert_eq!(iter.next(), Some(Ipv4::new(255, 255, 255, 255)));
+    assert_eq!(iter.next(), None);
 }
 
 #[test]
