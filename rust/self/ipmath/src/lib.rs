@@ -27,7 +27,7 @@ impl Ipv4Prefix {
     fn last(&self) -> Ipv4 {
         let net_bits = self.length;
         let host_bits = 32 - net_bits;
-        let host_mask = (1u32 << host_bits) - 1;
+        let host_mask = (1 << host_bits) - 1;
         let net_mask = !host_mask;
         Ipv4 {
             ip: (self.ip.ip & net_mask) | host_mask,
@@ -47,6 +47,13 @@ fn test_ipv4_prefix_last_23_bits() {
     let net = Ipv4Prefix::new(Ipv4::new(192, 168, 2, 0), 23);
     let actual = net.last();
     assert_eq!(actual, Ipv4::new(192, 168, 3, 255));
+}
+
+#[test]
+fn test_ipv4_prefix_last_32_bit() {
+    let net = Ipv4Prefix::new(Ipv4::new(192, 168, 0, 1), 32);
+    let actual = net.last();
+    assert_eq!(actual, Ipv4::new(192, 168, 0, 1));
 }
 
 impl From<[u8; 4]> for Ipv4 {
