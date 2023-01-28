@@ -33,12 +33,16 @@ impl IntoIterator for Ipv4 {
     type IntoIter = Ipv4Iterator;
 
     fn into_iter(self) -> Self::IntoIter {
-        Ipv4Iterator { next: Some(self) }
+        Ipv4Iterator {
+            next: Some(self),
+            last: Ipv4::new(255, 255, 255, 255),
+        }
     }
 }
 
 struct Ipv4Iterator {
     next: Option<Ipv4>,
+    last: Ipv4,
 }
 
 impl Iterator for Ipv4Iterator {
@@ -48,7 +52,7 @@ impl Iterator for Ipv4Iterator {
         let next = self.next;
         match next {
             Some(x) => {
-                if x.ip == 0xff_ff_ff_ff {
+                if x == self.last {
                     self.next = None;
                 } else {
                     self.next = Some(Ipv4 { ip: x.ip + 1 })
