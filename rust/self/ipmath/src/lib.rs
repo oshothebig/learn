@@ -6,12 +6,47 @@ struct Ipv4 {
     ip: u32,
 }
 
+struct Ipv4Prefix {
+    ip: Ipv4,
+    length: u8,
+}
+
 impl Ipv4 {
     fn new(a: u8, b: u8, c: u8, d: u8) -> Ipv4 {
         Ipv4 {
             ip: u32::from_be_bytes([a, b, c, d]),
         }
     }
+}
+
+impl Ipv4Prefix {
+    fn new(ip: Ipv4, length: u8) -> Ipv4Prefix {
+        Ipv4Prefix { ip, length }
+    }
+
+    fn last(&self) -> Ipv4 {
+        let net_bits = self.length;
+        let host_bits = 32 - net_bits;
+        let host_mask = (1u32 << host_bits) - 1;
+        let net_mask = !host_mask;
+        Ipv4 {
+            ip: (self.ip.ip & net_mask) | host_mask,
+        }
+    }
+}
+
+#[test]
+fn test_ipv4_prefix_last_24_bits() {
+    let net = Ipv4Prefix::new(Ipv4::new(192, 168, 0, 0), 24);
+    let actual = net.last();
+    assert_eq!(actual, Ipv4::new(192, 168, 0, 255));
+}
+
+#[test]
+fn test_ipv4_prefix_last_23_bits() {
+    let net = Ipv4Prefix::new(Ipv4::new(192, 168, 2, 0), 23);
+    let actual = net.last();
+    assert_eq!(actual, Ipv4::new(192, 168, 3, 255));
 }
 
 impl From<[u8; 4]> for Ipv4 {
@@ -36,6 +71,18 @@ impl IntoIterator for Ipv4 {
         Ipv4Iterator {
             next: Some(self),
             last: Ipv4::new(255, 255, 255, 255),
+        }
+    }
+}
+
+impl IntoIterator for Ipv4Prefix {
+    type Item = Ipv4;
+    type IntoIter = Ipv4Iterator;
+
+    fn into_iter(self) -> Self::IntoIter {
+        Ipv4Iterator {
+            next: Some(self.ip),
+            last: self.last(),
         }
     }
 }
@@ -77,6 +124,13 @@ fn test_ipv4_iter_final() {
     assert_eq!(iter.next(), Some(Ipv4::new(255, 255, 255, 254)));
     assert_eq!(iter.next(), Some(Ipv4::new(255, 255, 255, 255)));
     assert_eq!(iter.next(), None);
+}
+
+#[test]
+fn test_ipv4_prefix_iter() {
+    let mut iter = Ipv4Prefix::new(Ipv4::new(192, 168, 0, 0), 24).into_iter();
+    assert_eq!(iter.next(), Some(Ipv4::new(192, 168, 0, 0)));
+    assert_eq!(iter.next(), Some(Ipv4::new(192, 168, 0, 1)));
 }
 
 #[test]
