@@ -17,6 +17,10 @@ impl Ipv4 {
             ip: u32::from_be_bytes([a, b, c, d]),
         }
     }
+
+    fn next(&self) -> Ipv4 {
+        Ipv4 { ip: self.ip + 1 }
+    }
 }
 
 impl Ipv4Prefix {
@@ -109,7 +113,7 @@ impl Iterator for Ipv4Iterator {
                 if x == self.last {
                     self.next = None;
                 } else {
-                    self.next = Some(Ipv4 { ip: x.ip + 1 })
+                    self.next = Some(x.next());
                 }
                 next
             }
