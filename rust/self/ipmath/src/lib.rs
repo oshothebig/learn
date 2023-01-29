@@ -21,6 +21,16 @@ impl Ipv4 {
     fn next(&self) -> Ipv4 {
         Ipv4 { ip: self.ip + 1 }
     }
+
+    fn prior(&self) -> Ipv4 {
+        Ipv4 { ip: self.ip - 1 }
+    }
+}
+
+#[test]
+fn test_ipv4_prior() {
+    let net = Ipv4::new(192, 168, 0, 1);
+    assert_eq!(net.prior(), Ipv4::new(192, 168, 0, 0));
 }
 
 impl Ipv4Prefix {
