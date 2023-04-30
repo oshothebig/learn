@@ -75,11 +75,11 @@ topology:
       - /usr/lib/frr/frrinit.sh start
 
   links:
-  - endpoints: ["spine00:eth1", "leaf00:eth1"]
-  - endpoints: ["spine00:eth2", "leaf01:eth1"]
-  - endpoints: ["spine01:eth1", "leaf00:eth2"]
-  - endpoints: ["spine01:eth2", "leaf01:eth2"]
-  - endpoints: ["leaf00:eth3", "kind-control-plane:eth1"]
-  - endpoints: ["leaf00:eth4", "kind-worker:eth1"]
-  - endpoints: ["leaf01:eth3", "kind-worker2:eth1"]
-  - endpoints: ["leaf01:eth4", "kind-worker3:eth1"]
+  - endpoints: ["spine0:eth1", "leaf0:eth1"]
+  - endpoints: ["spine0:eth2", "leaf1:eth1"]
+  - endpoints: ["spine1:eth1", "leaf0:eth2"]
+  - endpoints: ["spine1:eth2", "leaf1:eth2"]
+  - endpoints: ["leaf0:eth3", "host0:eth1"]
+  - endpoints: ["leaf0:eth4", "host1:eth1"]
+  - endpoints: ["leaf1:eth3", "host2:eth1"]
+  - endpoints: ["leaf1:eth4", "host3:eth1"]
