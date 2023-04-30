@@ -1,0 +1,85 @@
+name: frr
+
+topology:
+  nodes:
+    spine0:
+      kind: linux
+      image: quay.io/frrouting/frr:8.5.1
+      entrypoint: bash
+      exec:
+      - sed -i -e 's/bgpd=no/bgpd=yes/g' /etc/frr/daemons
+      - bash -c "echo service integrated-vtysh-config > /etc/frr/vtysh.conf"
+      - /usr/lib/frr/frrinit.sh start
+
+    spine1:
+      kind: linux
+      image: quay.io/frrouting/frr:8.5.1
+      entrypoint: bash
+      exec:
+      - sed -i -e 's/bgpd=no/bgpd=yes/g' /etc/frr/daemons
+      - bash -c "echo service integrated-vtysh-config > /etc/frr/vtysh.conf"
+      - /usr/lib/frr/frrinit.sh start
+
+    leaf0:
+      kind: linux
+      image: quay.io/frrouting/frr:8.5.1
+      entrypoint: bash
+      exec:
+      - sed -i -e 's/bgpd=no/bgpd=yes/g' /etc/frr/daemons
+      - bash -c "echo service integrated-vtysh-config > /etc/frr/vtysh.conf"
+      - /usr/lib/frr/frrinit.sh start
+
+    leaf1:
+      kind: linux
+      image: quay.io/frrouting/frr:8.5.1
+      entrypoint: bash
+      exec:
+      - sed -i -e 's/bgpd=no/bgpd=yes/g' /etc/frr/daemons
+      - bash -c "echo service integrated-vtysh-config > /etc/frr/vtysh.conf"
+      - /usr/lib/frr/frrinit.sh start
+
+    host0:
+      kind: linux
+      image: quay.io/frrouting/frr:8.5.1
+      entrypoint: bash
+      exec:
+      - sed -i -e 's/bgpd=no/bgpd=yes/g' /etc/frr/daemons
+      - bash -c "echo service integrated-vtysh-config > /etc/frr/vtysh.conf"
+      - /usr/lib/frr/frrinit.sh start
+
+    host1:
+      kind: linux
+      image: quay.io/frrouting/frr:8.5.1
+      entrypoint: bash
+      exec:
+      - sed -i -e 's/bgpd=no/bgpd=yes/g' /etc/frr/daemons
+      - bash -c "echo service integrated-vtysh-config > /etc/frr/vtysh.conf"
+      - /usr/lib/frr/frrinit.sh start
+
+    host2:
+      kind: linux
+      image: quay.io/frrouting/frr:8.5.1
+      entrypoint: bash
+      exec:
+      - sed -i -e 's/bgpd=no/bgpd=yes/g' /etc/frr/daemons
+      - bash -c "echo service integrated-vtysh-config > /etc/frr/vtysh.conf"
+      - /usr/lib/frr/frrinit.sh start
+
+    host3:
+      kind: linux
+      image: quay.io/frrouting/frr:8.5.1
+      entrypoint: bash
+      exec:
+      - sed -i -e 's/bgpd=no/bgpd=yes/g' /etc/frr/daemons
+      - bash -c "echo service integrated-vtysh-config > /etc/frr/vtysh.conf"
+      - /usr/lib/frr/frrinit.sh start
+
+  links:
+  - endpoints: ["spine00:eth1", "leaf00:eth1"]
+  - endpoints: ["spine00:eth2", "leaf01:eth1"]
+  - endpoints: ["spine01:eth1", "leaf00:eth2"]
+  - endpoints: ["spine01:eth2", "leaf01:eth2"]
+  - endpoints: ["leaf00:eth3", "kind-control-plane:eth1"]
+  - endpoints: ["leaf00:eth4", "kind-worker:eth1"]
+  - endpoints: ["leaf01:eth3", "kind-worker2:eth1"]
+  - endpoints: ["leaf01:eth4", "kind-worker3:eth1"]
