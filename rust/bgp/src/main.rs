@@ -2,8 +2,10 @@ use std::io::Read;
 use std::net::{TcpListener, TcpStream};
 
 fn main() {
-    let listener = TcpListener::bind("0.0.0.0:179").unwrap();
-    println!("Server listening on port 179");
+    let port = 179;
+
+    let listener = TcpListener::bind(format!("0.0.0.0:{port}")).unwrap();
+    println!("Server listening on port {port}");
 
     for stream in listener.incoming() {
         match stream {
