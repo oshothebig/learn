@@ -26,7 +26,7 @@ enum MessageType {
     Open = 1,
     Update = 2,
     Notification = 3,
-    Keepalive = 4
+    Keepalive = 4,
 }
 
 fn handle_client(mut stream: TcpStream) {
