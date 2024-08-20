@@ -15,6 +15,20 @@ fn main() {
     }
 }
 
+struct Header {
+    maker: u128,
+    length: u16,
+    // type is Rust's keyword, so need to use alternative
+    message_type: MessageType,
+}
+
+enum MessageType {
+    Open = 1,
+    Update = 2,
+    Notification = 3,
+    Keepalive = 4
+}
+
 fn handle_client(mut stream: TcpStream) {
     let addr = match stream.peer_addr() {
         Ok(peer_addr) => peer_addr.to_string(),
