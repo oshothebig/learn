@@ -26,9 +26,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    # Install Rust
-    - uses: dtolnay/rust-toolchain@master
-      with:
-        toolchain: 1.80.1
-    - run: cargo build
-    - run: ./test.sh
+    - run: docker build --progress plain .
