@@ -1,0 +1,24 @@
+name: rust/bgp
+
+on:
+  push:
+  pull_request:
+    types: ["opened", "synchronize"]
+    paths:
+    - rust/bgp/**
+
+defaults:
+  run:
+    working-directory: rust/bgp
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    # Install Rust
+    - uses: dtolnay/rust-toolchain@master
+      with:
+        toolchain: 1.80.1
+    - run: cargo build
