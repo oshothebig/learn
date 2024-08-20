@@ -39,13 +39,11 @@ fn handle_client(mut stream: TcpStream) {
     let mut buffer = [0u8; 1024 * 4];
     loop {
         match stream.read(&mut buffer) {
-            Ok(size) => {
-                if size == 0 {
-                    println!("Connection closed");
-                    break;
-                }
-                println!("Received {} bytes", size);
+            Ok(0) => {
+                println!("Connection closed");
+                break;
             }
+            Ok(size) => println!("Received {} bytes", size),
             Err(e) => {
                 println!("Error: {}", e);
                 break;
