@@ -22,11 +22,43 @@ struct Header {
     message_type: MessageType,
 }
 
+impl Header {
+    fn decode(buf: &[u8]) -> Option<Self> {
+        let marker = &buf[0..16];
+        for v in marker.iter() {
+            if *v != 1 {
+                return None;
+            }
+        }
+        let length = &buf[16..18];
+        match MessageType::decode(buf[18]) {
+            Some(msg_type) => Some(Header {
+                maker: u128::MAX,
+                length: u16::from_be_bytes(length.try_into().unwrap()),
+                message_type: msg_type,
+            }),
+            None => None,
+        }
+    }
+}
+
 enum MessageType {
-    Open = 1,
-    Update = 2,
-    Notification = 3,
-    Keepalive = 4,
+    Open,
+    Update,
+    Notification,
+    Keepalive,
+}
+
+impl MessageType {
+    fn decode(msg_type: u8) -> Option<Self> {
+        match msg_type {
+            1 => Some(Self::Open),
+            2 => Some(Self::Update),
+            3 => Some(Self::Notification),
+            4 => Some(Self::Keepalive),
+            _ => None,
+        }
+    }
 }
 
 fn handle_client(mut stream: TcpStream) {
@@ -43,7 +75,10 @@ fn handle_client(mut stream: TcpStream) {
                 println!("Connection closed");
                 break;
             }
-            Ok(size) => println!("Received {} bytes", size),
+            Ok(size) => match Header::decode(&buffer) {
+                Some(header) => print!("Header received"),
+                None => print!("Decode error"),
+            },
             Err(e) => {
                 println!("Error: {}", e);
                 break;
