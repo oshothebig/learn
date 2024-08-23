@@ -25,16 +25,17 @@ struct Header {
 impl Header {
     fn decode(buf: &[u8]) -> Option<Self> {
         let marker = &buf[0..16];
-        for v in marker.iter() {
-            if *v != 1 {
-                return None;
-            }
+        let marker = u128::from_be_bytes(marker.try_into().unwrap());
+        if marker != u128::MAX {
+            return None;
         }
+
         let length = &buf[16..18];
+        let length = u16::from_be_bytes(length.try_into().unwrap());
         match MessageType::decode(buf[18]) {
             Some(msg_type) => Some(Header {
                 maker: u128::MAX,
-                length: u16::from_be_bytes(length.try_into().unwrap()),
+                length: length,
                 message_type: msg_type,
             }),
             None => None,
