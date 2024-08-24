@@ -24,8 +24,13 @@ struct Header {
 
 impl Header {
     fn decode(buf: &[u8]) -> Option<Self> {
+        // header length is 19
+        if buf.len() < 19 {
+            return None;
+        }
         let marker = &buf[0..16];
         let marker = u128::from_be_bytes(marker.try_into().unwrap());
+        // all marker bits are 1
         if marker != u128::MAX {
             return None;
         }
