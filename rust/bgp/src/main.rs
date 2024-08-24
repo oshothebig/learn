@@ -15,6 +15,7 @@ fn main() {
     }
 }
 
+#[derive(Debug)]
 struct Header {
     maker: u128,
     length: u16,
@@ -48,6 +49,7 @@ impl Header {
     }
 }
 
+#[derive(Debug)]
 enum MessageType {
     Open,
     Update,
@@ -82,7 +84,7 @@ fn handle_client(mut stream: TcpStream) {
                 break;
             }
             Ok(size) => match Header::decode(&buffer) {
-                Some(header) => print!("Header received"),
+                Some(header) => println!("Header received: {:?}", header),
                 None => print!("Decode error"),
             },
             Err(e) => {
