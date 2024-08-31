@@ -17,34 +17,38 @@ fn main() {
 
 #[derive(Debug)]
 struct Header {
-    maker: u128,
+    marker: u128,
     length: u16,
     // type is Rust's keyword, so need to use alternative
     message_type: MessageType,
 }
 
-impl Header {
-    fn decode(buf: &[u8]) -> Option<Self> {
-        // header length is 19
-        if buf.len() < 19 {
-            return None;
-        }
-        let marker = &buf[0..16];
-        let marker = u128::from_be_bytes(marker.try_into().unwrap());
-        // all marker bits are 1
-        if marker != u128::MAX {
-            return None;
+impl TryFrom<&[u8]> for Header {
+    // TODO: Define specific error type
+    type Error = ();
+
+    fn try_from(bytes: &[u8]) -> Result<Self, Self::Error> {
+        if bytes.len() < 19 {
+            return Err(());
         }
 
-        let length = &buf[16..18];
+        let marker = &bytes[0..16];
+        let marker = marker
+            .try_into()
+            .map(|bs| u128::from_be_bytes(bs))
+            .map_err(|e| ())
+            .and_then(|m| match m {
+                u128::MAX => Ok(m),
+                _ => Err(()),
+            })?;
+
+        let length = &bytes[16..18];
         let length = u16::from_be_bytes(length.try_into().unwrap());
-        MessageType::try_from(buf[18])
-            .map(|msg_type| Header {
-                maker: u128::MAX,
-                length,
-                message_type: msg_type,
-            })
-            .ok()
+        MessageType::try_from(bytes[18]).map(|message_type| Header {
+            marker,
+            length,
+            message_type,
+        })
     }
 }
 
@@ -85,9 +89,9 @@ fn handle_client(mut stream: TcpStream) {
                 println!("Connection closed");
                 break;
             }
-            Ok(size) => match Header::decode(&buffer) {
-                Some(header) => println!("Header received: {:?}", header),
-                None => print!("Decode error"),
+            Ok(size) => match Header::try_from(&buffer[..size]) {
+                Ok(header) => println!("Header received: {:?}", header),
+                Err(_) => print!("Decode error"),
             },
             Err(e) => {
                 println!("Error: {}", e);
