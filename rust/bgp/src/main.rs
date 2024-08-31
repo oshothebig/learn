@@ -38,14 +38,13 @@ impl Header {
 
         let length = &buf[16..18];
         let length = u16::from_be_bytes(length.try_into().unwrap());
-        match MessageType::decode(buf[18]) {
-            Some(msg_type) => Some(Header {
+        MessageType::try_from(buf[18])
+            .map(|msg_type| Header {
                 maker: u128::MAX,
-                length: length,
+                length,
                 message_type: msg_type,
-            }),
-            None => None,
-        }
+            })
+            .ok()
     }
 }
 
@@ -57,14 +56,17 @@ enum MessageType {
     Keepalive,
 }
 
-impl MessageType {
-    fn decode(msg_type: u8) -> Option<Self> {
+impl TryFrom<u8> for MessageType {
+    // TODO: Define specific error type
+    type Error = ();
+
+    fn try_from(msg_type: u8) -> Result<Self, Self::Error> {
         match msg_type {
-            1 => Some(Self::Open),
-            2 => Some(Self::Update),
-            3 => Some(Self::Notification),
-            4 => Some(Self::Keepalive),
-            _ => None,
+            1 => Ok(Self::Open),
+            2 => Ok(Self::Update),
+            3 => Ok(Self::Notification),
+            4 => Ok(Self::Keepalive),
+            _ => Err(()),
         }
     }
 }
