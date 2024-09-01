@@ -111,57 +111,51 @@ fn handle_client(mut stream: TcpStream) {
 
     let mut buffer = [0u8; 1024 * 4];
     loop {
-        // read header: 19 bytes
-        let header_buf = &mut buffer[0..19];
-        match stream.read_exact(header_buf) {
-            Ok(_) => {
-                // parse header
-                match Header::try_from(header_buf.as_ref()) {
-                    Ok(header) => {
-                        // read body
-                        let body_buf = &mut buffer[19..header.length as usize];
-                        match stream.read_exact(body_buf) {
-                            Ok(_) => {
-                                // parse body
-                                match Message::try_from(&buffer[0..header.length as usize]) {
-                                    Ok(message) => {
-                                        println!("Message received: {:?}", message);
-                                    }
-                                    Err(e) => {
-                                        println!("Error while parsing body: {:?}", e);
-                                    }
-                                }
-                            }
-                            Err(e) => {
-                                println!("Error while reading body: {}", e);
-                                break;
-                            }
-                        }
-                    }
-                    Err(e) => {
-                        println!("Error while parsing header: {:?}", e);
-                        break;
-                    }
-                }
+        match parse_message(&mut stream, &mut buffer) {
+            Ok(message) => {
+                println!("Received message: {:?}", message)
             }
-            Err(e) => {
-                println!("Error while reading header: {}", e);
-                break;
-            }
-        }
-        match stream.read(&mut buffer) {
-            Ok(0) => {
-                println!("Connection closed");
-                break;
-            }
-            Ok(size) => match Header::try_from(&buffer[..size]) {
-                Ok(header) => println!("Header received: {:?}", header),
-                Err(_) => print!("Decode error"),
-            },
-            Err(e) => {
-                println!("Error: {}", e);
+            Err(_) => {
+                println!("Closing connection");
                 break;
             }
         }
     }
+}
+
+fn parse_message(stream: &mut TcpStream, buf: &mut [u8]) -> Result<Message, DecodeError> {
+    const HEADER_LENGTH: usize = 19;
+
+    let header_buf = &mut buf[0..HEADER_LENGTH];
+    if let Err(e) = stream.read_exact(header_buf) {
+        println!("Error while reading header: {}", e);
+        return Err(DecodeError);
+    }
+
+    let header = match Header::try_from(header_buf.as_ref()) {
+        Ok(header) => header,
+        Err(e) => {
+            println!("Error while parsing header: {:?}", e);
+            return Err(DecodeError);
+        }
+    };
+
+    println!("Header received: {:?}", header);
+
+    let body_buf = &mut buf[HEADER_LENGTH..header.length as usize];
+
+    if let Err(e) = stream.read_exact(body_buf) {
+        println!("Error while reading body: {}", e);
+        return Err(DecodeError);
+    }
+
+    let message = match Message::try_from(&buf[0..header.length as usize]) {
+        Ok(message) => message,
+        Err(e) => {
+            println!("Error while parsing message: {:?}", e);
+            return Err(DecodeError);
+        }
+    };
+
+    Ok(message)
 }
