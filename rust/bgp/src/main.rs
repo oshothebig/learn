@@ -23,23 +23,25 @@ struct Header {
     message_type: MessageType,
 }
 
+#[derive(Debug)]
+struct DecodeError;
+
 impl TryFrom<&[u8]> for Header {
-    // TODO: Define specific error type
-    type Error = ();
+    type Error = DecodeError;
 
     fn try_from(bytes: &[u8]) -> Result<Self, Self::Error> {
         if bytes.len() < 19 {
-            return Err(());
+            return Err(DecodeError);
         }
 
         let marker = &bytes[0..16];
         let marker = marker
             .try_into()
             .map(|bs| u128::from_be_bytes(bs))
-            .map_err(|e| ())
+            .map_err(|_| DecodeError)
             .and_then(|m| match m {
                 u128::MAX => Ok(m),
-                _ => Err(()),
+                _ => Err(DecodeError),
             })?;
 
         let length = &bytes[16..18];
@@ -61,8 +63,7 @@ enum MessageType {
 }
 
 impl TryFrom<u8> for MessageType {
-    // TODO: Define specific error type
-    type Error = ();
+    type Error = DecodeError;
 
     fn try_from(msg_type: u8) -> Result<Self, Self::Error> {
         match msg_type {
@@ -70,7 +71,7 @@ impl TryFrom<u8> for MessageType {
             2 => Ok(Self::Update),
             3 => Ok(Self::Notification),
             4 => Ok(Self::Keepalive),
-            _ => Err(()),
+            _ => Err(DecodeError),
         }
     }
 }
