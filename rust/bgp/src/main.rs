@@ -1,5 +1,5 @@
 use std::io::Read;
-use std::net::{TcpListener, TcpStream};
+use std::net::{Ipv4Addr, TcpListener, TcpStream};
 
 fn main() {
     let port = 179;
@@ -24,11 +24,8 @@ struct Header {
 }
 
 #[derive(Debug)]
-struct Message {
-    header: Header,
-    // just stores bytes representing message body tentatively.
-    // TODO: Implement message parser
-    bytes: Vec<u8>,
+enum Message {
+    Open(OpenMessage),
 }
 
 impl TryFrom<&[u8]> for Message {
@@ -42,9 +39,62 @@ impl TryFrom<&[u8]> for Message {
         }
 
         let body = &bytes[19..header.length as usize];
-        Ok(Message {
-            header,
-            bytes: Vec::from(body),
+        match header.message_type {
+            MessageType::Open => OpenMessage::try_from(body).map(|m| Message::Open(m)),
+            _ => Err(DecodeError),
+        }
+    }
+}
+
+#[derive(Debug)]
+struct OpenMessage {
+    version: u8,
+    my_as: u16,
+    hold_time: u16,
+    identifier: Ipv4Addr,
+    opt_param_length: u8,
+    capabilities: Vec<u8>,
+}
+
+impl TryFrom<&[u8]> for OpenMessage {
+    type Error = DecodeError;
+
+    fn try_from(bytes: &[u8]) -> Result<Self, Self::Error> {
+        let version_range = 0..1;
+        let my_asn_range = 1..3;
+        let hold_time_range = 3..5;
+        let identifier_range = 5..9;
+        let opt_param_length_range = 9..10;
+
+        let version: u8 = (&bytes[version_range])
+            .try_into()
+            .map(|bs| u8::from_be_bytes(bs))
+            .map_err(|_| DecodeError)?;
+        let my_as = (&bytes[my_asn_range])
+            .try_into()
+            .map(|bs| u16::from_be_bytes(bs))
+            .map_err(|_| DecodeError)?;
+        let hold_time = (&bytes[hold_time_range])
+            .try_into()
+            .map(|bs| u16::from_be_bytes(bs))
+            .map_err(|_| DecodeError)?;
+        let identifier = (&bytes[identifier_range])
+            .try_into()
+            .map(|bs: [u8; 4]| Ipv4Addr::from(bs))
+            .map_err(|_| DecodeError)?;
+        let opt_param_length = (&bytes[opt_param_length_range])
+            .try_into()
+            .map(|bs| u8::from_be_bytes(bs))
+            .map_err(|_| DecodeError)?;
+        let capabilities = Vec::from(&bytes[10..]);
+
+        Ok(OpenMessage {
+            version,
+            my_as,
+            hold_time,
+            identifier,
+            opt_param_length,
+            capabilities,
         })
     }
 }
