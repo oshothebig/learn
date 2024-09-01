@@ -24,6 +24,32 @@ struct Header {
 }
 
 #[derive(Debug)]
+struct Message {
+    header: Header,
+    // just stores bytes representing message body tentatively.
+    // TODO: Implement message parser
+    bytes: Vec<u8>,
+}
+
+impl TryFrom<&[u8]> for Message {
+    type Error = DecodeError;
+
+    fn try_from(bytes: &[u8]) -> Result<Self, Self::Error> {
+        let header = Header::try_from(bytes)?;
+
+        if bytes.len() < header.length as usize {
+            return Err(DecodeError);
+        }
+
+        let body = &bytes[19..header.length as usize];
+        Ok(Message {
+            header,
+            bytes: Vec::from(body),
+        })
+    }
+}
+
+#[derive(Debug)]
 struct DecodeError;
 
 impl TryFrom<&[u8]> for Header {
