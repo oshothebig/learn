@@ -1,0 +1,38 @@
+image := "zebra-rs:latest"
+container := "zebra-rs"
+channel := "stable"
+
+default:
+    @just --list
+
+# Build the container image (channel: stable or nightly)
+build:
+    docker build --build-arg ZEBRA_RS_CHANNEL={{ channel }} -t {{ image }} .
+
+# Rebuild the image without cache
+rebuild:
+    docker build --no-cache --build-arg ZEBRA_RS_CHANNEL={{ channel }} -t {{ image }} .
+
+# Start the zebra-rs daemon in the background
+run:
+    docker run -d --name {{ container }} --hostname {{ container }} --privileged {{ image }}
+
+# Open the vty shell in the running container
+vty:
+    docker exec -it {{ container }} vty
+
+# Open a bash shell in the running container
+shell:
+    docker exec -it {{ container }} bash
+
+# Follow the daemon logs
+logs:
+    docker logs -f {{ container }}
+
+# Stop and remove the container
+stop:
+    docker rm -f {{ container }}
+
+# Remove the container and the image
+clean: stop
+    docker rmi {{ image }}
